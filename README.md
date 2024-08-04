@@ -1,14 +1,14 @@
 # FEditNet++
-[TPAMI] FEditNet: Few-shot Editing of Latent Semantics in GAN Spaces
+[TPAMI 2024] FEditNet++: Few-Shot Editing of Latent Semantics in GAN Spaces with Correlated Attribute Disentanglement
 
 ###  [Paper](https://ieeexplore.ieee.org/document/10607942) | [Suppl](10.1109/TPAMI.2024.3432529/mm1)
 
 <!-- <br> -->
-[Ran Yi](https://yiranran.github.io/),
-[Teng Hu](https://github.com/sjtuplayer),
-[Mengfei Xia](https://github.com/thuxmf), 
-[Yizhe Tang](https://github.com/YevinTang),
- and [Yongjin Liu](https://cg.cs.tsinghua.edu.cn/people/~Yongjin/Yongjin.htm),
+[Ran Yi](https://scholar.google.com/citations?hl=zh-CN&user=y68DLo4AAAAJ),
+[Teng Hu](https://scholar.google.com/citations?hl=zh-CN&user=Jm5qsAYAAAAJ),
+[Mengfei Xia](https://scholar.google.com/citations?hl=zh-CN&user=jmOlxQ0AAAAJ), 
+[Yizhe Tang](https://github.com/sjtuplayer/FEditNet2),
+ and [Yong-Jin Liu](https://scholar.google.com.hk/citations?hl=zh-CN&user=GNDtwWQAAAAJ),
 <!-- <br> -->
 
 ![image](imgs/framework.png)
@@ -17,19 +17,12 @@
 # Prepare
 
 ```bash
-#conda create -n live python=3.7
-#conda activate live
-#conda install -y pytorch torchvision -c pytorch
-#conda install -y numpy scikit-image
-#conda install -y -c anaconda cmake
-#conda install -y -c conda-forge ffmpeg
-#pip install svgwrite svgpathtools cssutils numba torch-tools scikit-fmm easydict visdom
-#pip install opencv-python==4.5.4.60  # please install this version to avoid segmentation fault.
-#
-#cd DiffVG
-#git submodule update --init --recursive
-#python setup.py install
-#cd ..
+pip install pytorch==1.13.1
+pip install torchvision==0.14.1
+pip install opencv-python==4.7.0.72
+pip install numpy==1.23.1
+pip install pillow==9.4.0
+pip install tqdm==4.65.0
 ```
 
 
@@ -37,39 +30,61 @@
 ## Training Step
 
 ### (0) Prepare
-Data prepare: Download the [StyleGAN](https://image-net.org) checkpoint.
+Checkpoints prepare: Download the [StyleGAN](https://github.com/rosinality/stylegan2-pytorch) checkpoint.
 
-### (1) Train the editnet Model
+Data prepare: schedule the dataset as:
 
-Put the downloaded Imagenet or any dataset you want into `$path_to_the_dataset`. 
-Then, you can train the coarse-stage model by running:
+```angular2html
+- dataset
+    - celeba-test
+      - $attr1
+          - 0.png
+          - 1.png
+          - ...
+      - $attr2
+          - 0.png
+          - 1.png
+          - ...
+      - ...
 
 ```
-python3 train_editnet.py --name=$attribute_name
+where `$attri` if the name for the ith attribute, e.g., Smile, Old.
+### (1) Train FEditNet
+
+To train the model on one attributes `attr`, you can run:
+
+```
+python3 train_editnet.py --name=$attr
 ```
 
-After training, the checkpoints and logs are saved in the directory ``.
+### (2) Train FEditNet++ to disentangle two attributes
 
-### (2) Train the editnet2 Model
+To train the model on two attributes `attri` and `attrj`, you can run:
 
-Coming soon
+```
+python3 train_editnet2.py --attr1=$attri --attr2=$attrj
+```
 
-[//]: # (With the trained coarse-stage model, you can train the refinement-stage model by running:)
+### (3) Test the trained model
 
-[//]: # ()
-[//]: # (```)
+After training the model, you can generate image by running:
+```
+python3 test-decoupled_generator.py --attr=$attri-$attrj
+```
 
-[//]: # (python3 main_refine --data_path=$path_to_the_dataset)
+### TODO: decouple on three attributes
 
-[//]: # (```)
-
-[//]: # ()
-[//]: # (After training, the checkpoints and logs are saved in the directory `output_refine`.)
 
 ## Citation
 
 If you find this code helpful for your research, please cite:
 
 ```
-
+@article{yi2024feditnet++,
+  title={FEditNet++: Few-Shot Editing of Latent Semantics in GAN Spaces with Correlated Attribute Disentanglement},
+  author={Yi, Ran and Hu, Teng and Xia, Mengfei and Tang, Yizhe and Liu, Yong-Jin},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2024},
+  publisher={IEEE}
+}
 ```
